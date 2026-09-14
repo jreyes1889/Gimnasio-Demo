@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NÚCLEO Training Club — Rosario</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<style>
+  :root{
+    --bg:#15161a;
+    --surface:#1d1f25;
+    --surface-2:#23252c;
+    --ink:#edeae3;
+    --ink-dim:#9a9ca6;
+    --amber:#f2b705;
+    --amber-dim:#c99807;
+    --line:#2e313a;
+    --maxw:1180px;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--ink);
+    font-family:'Manrope',sans-serif;
+    font-weight:400;
+    line-height:1.55;
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3,.display{
+    font-family:'Anton',sans-serif;
+    font-weight:400;
+    line-height:0.95;
+    letter-spacing:0.3px;
+    margin:0;
+  }
+  a{color:inherit;text-decoration:none;}
+  img{max-width:100%;display:block;}
+  .wrap{max-width:var(--maxw);margin:0 auto;padding:0 28px;}
+  ::selection{background:var(--amber);color:#15161a;}
+  :focus-visible{outline:2px solid var(--amber);outline-offset:3px;}
+
+  /* NAV */
+  header{
+    position:sticky;top:0;z-index:50;
+    background:rgba(21,22,26,0.86);
+    backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--line);
+  }
+  .navbar{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:18px 28px;max-width:var(--maxw);margin:0 auto;
+  }
+  .word{
+    font-family:'Anton',sans-serif;font-size:22px;letter-spacing:1px;
+  }
+  .word span{color:var(--amber);}
+  nav.links{display:flex;gap:34px;}
+  nav.links a{
+    font-size:14.5px;font-weight:600;color:var(--ink-dim);
+    position:relative;padding:4px 0;
+    transition:color .2s ease;
+  }
+  nav.links a::after{
+    content:"";position:absolute;left:0;bottom:-2px;
+    width:0;height:2px;background:var(--amber);
+    transition:width .25s ease;
+  }
+  nav.links a:hover,nav.links a.active{color:var(--ink);}
+  nav.links a:hover::after,nav.links a.active::after{width:100%;}
+  .nav-cta{
+    background:var(--amber);color:#15161a;font-weight:800;
+    padding:10px 20px;border-radius:2px;font-size:14px;
+  }
+  .nav-cta:hover{background:var(--ink);}
+  .burger{display:none;background:none;border:0;color:var(--ink);font-size:26px;cursor:pointer;}
+
+  /* HERO */
+  .hero{
+    display:grid;grid-template-columns:1.05fr 0.95fr;
+    align-items:stretch;
+    min-height:88vh;
+    border-bottom:1px solid var(--line);
+  }
+  .hero-left{
+    display:flex;flex-direction:column;justify-content:center;
+    padding:60px 56px 60px 28px;
+  }
+  .eyebrow{
+    color:var(--amber);font-weight:700;font-size:14px;
+    margin-bottom:18px;
+  }
+  .hero h1{
+    font-size:clamp(46px,6vw,84px);
+    opacity:0;transform:translateY(22px);
+    animation:riseIn .8s cubic-bezier(.2,.7,.2,1) .15s forwards;
+  }
+  .hero h1 em{font-style:normal;color:var(--amber);}
+  .hero p.lead{
+    margin-top:22px;max-width:46ch;color:var(--ink-dim);font-size:17.5px;
+    opacity:0;transform:translateY(18px);
+    animation:riseIn .8s cubic-bezier(.2,.7,.2,1) .35s forwards;
+  }
+  .cta-row{
+    display:flex;gap:16px;margin-top:34px;flex-wrap:wrap;
+    opacity:0;transform:translateY(18px);
+    animation:riseIn .8s cubic-bezier(.2,.7,.2,1) .5s forwards;
+  }
+  .btn{
+    display:inline-block;padding:14px 26px;font-weight:700;font-size:15px;
+    border-radius:2px;border:1px solid transparent;cursor:pointer;
+  }
+  .btn-primary{background:var(--amber);color:#15161a;}
+  .btn-primary:hover{background:#fff;}
+  .btn-ghost{border-color:var(--line);color:var(--ink);}
+  .btn-ghost:hover{border-color:var(--ink);}
+  @keyframes riseIn{to{opacity:1;transform:translateY(0);}}
+
+  .hero-right{
+    position:relative;overflow:hidden;background:var(--surface);
+    clip-path:polygon(14% 0,100% 0,100% 100%,0% 100%);
+    animation:wipeIn 1s cubic-bezier(.2,.7,.2,1) .05s both;
+  }
+  @keyframes wipeIn{
+    from{clip-path:polygon(60% 0,100% 0,100% 100%,60% 100%);}
+    to{clip-path:polygon(14% 0,100% 0,100% 100%,0% 100%);}
+  }
+  .hero-right .panel-duo{
+    position:absolute;inset:0;
+    background:
+      radial-gradient(circle at 75% 20%, rgba(242,183,5,0.18), transparent 45%),
+      linear-gradient(155deg,#23252c 0%, #17181c 62%, #0f1013 100%);
+  }
+  .hero-right svg{position:absolute;inset:0;width:100%;height:100%;opacity:.9;}
+  .hero-caption{
+    position:absolute;left:22%;bottom:34px;color:var(--ink-dim);
+    font-size:13px;letter-spacing:.3px;
+  }
+
+  /* SECTION GENERIC */
+  section{padding:100px 0;border-bottom:1px solid var(--line);}
+  .kicker{
+    color:var(--amber);font-weight:700;font-size:14px;margin-bottom:14px;
+  }
+  .section-head{
+    display:grid;grid-template-columns:1fr 1fr;gap:40px;
+    align-items:end;margin-bottom:56px;
+  }
+  .section-head h2{font-size:clamp(30px,3.6vw,46px);max-width:14ch;}
+  .section-head p{color:var(--ink-dim);max-width:44ch;font-size:16px;}
+
+  /* SOBRE */
+  .manifesto{max-width:760px;}
+  .manifesto p{font-size:22px;color:var(--ink);font-family:'Anton',sans-serif;font-weight:400;line-height:1.35;letter-spacing:.2px;}
+  .manifesto p + p{margin-top:26px;font-family:'Manrope',sans-serif;font-size:16.5px;color:var(--ink-dim);line-height:1.7;font-weight:400;}
+  .stat-row{display:flex;gap:56px;margin-top:52px;flex-wrap:wrap;}
+  .stat b{display:block;font-family:'Anton',sans-serif;font-size:40px;color:var(--amber);}
+  .stat span{color:var(--ink-dim);font-size:14px;}
+
+  /* INSTALACIONES */
+  .tabs{display:flex;gap:28px;margin-bottom:40px;border-bottom:1px solid var(--line);flex-wrap:wrap;}
+  .tab{
+    padding:12px 2px;font-weight:700;font-size:15px;color:var(--ink-dim);
+    border-bottom:2px solid transparent;margin-bottom:-1px;cursor:pointer;background:none;border-top:0;border-left:0;border-right:0;
+    font-family:'Manrope',sans-serif;
+  }
+  .tab.active{color:var(--ink);border-bottom-color:var(--amber);}
+  .gallery{
+    display:grid;grid-template-columns:repeat(6,1fr);grid-auto-rows:150px;gap:14px;
+  }
+  .gallery.hidden{display:none;}
+  .tile{
+    position:relative;border-radius:3px;overflow:hidden;
+    background:linear-gradient(150deg,#262832,#16171b);
+    border:1px solid var(--line);
+  }
+  .tile.big{grid-column:span 3;grid-row:span 2;}
+  .tile.mid{grid-column:span 3;grid-row:span 1;}
+  .tile.small{grid-column:span 2;grid-row:span 1;}
+  .tile .glow{position:absolute;inset:0;background:radial-gradient(circle at 30% 20%, rgba(242,183,5,.16), transparent 55%);}
+  .tile svg{position:absolute;opacity:.85;}
+  .tile .tag{
+    position:absolute;left:16px;bottom:14px;font-weight:700;font-size:14.5px;
+    background:rgba(21,22,26,.72);padding:6px 12px;border-radius:2px;
+    border-left:2px solid var(--amber);
+  }
+  .gallery-note{margin-top:22px;color:var(--ink-dim);font-size:13.5px;max-width:60ch;}
+
+  /* SERVICIOS */
+  .service-list{border-top:1px solid var(--line);}
+  .service-row{
+    display:grid;grid-template-columns:60px 1fr 2fr;gap:24px;
+    padding:26px 0;border-bottom:1px solid var(--line);align-items:center;
+  }
+  .service-row .mark{font-family:'Anton',sans-serif;color:var(--amber);font-size:22px;}
+  .service-row h3{font-size:20px;font-family:'Manrope',sans-serif;font-weight:800;}
+  .service-row p{color:var(--ink-dim);font-size:15px;margin:0;max-width:56ch;}
+
+  /* UBICACION */
+  #ubicacion{padding:0;}
+  .loc-grid{display:grid;grid-template-columns:0.85fr 1.15fr;min-height:560px;}
+  .loc-info{
+    background:var(--surface);padding:72px 56px;display:flex;flex-direction:column;justify-content:center;
+  }
+  .loc-info h2{font-size:clamp(28px,3.2vw,40px);margin-bottom:26px;}
+  .loc-block{margin-bottom:24px;}
+  .loc-block .label{color:var(--amber);font-weight:700;font-size:13px;margin-bottom:6px;}
+  .loc-block .val{font-size:16px;color:var(--ink);}
+  .loc-block .val small{display:block;color:var(--ink-dim);font-size:14px;margin-top:2px;}
+  #map{width:100%;height:100%;min-height:400px;filter:saturate(0.35) brightness(0.85) contrast(1.05);}
+
+  /* CONTACTO / FOOTER */
+  footer{padding:64px 0 40px;}
+  .foot-grid{display:grid;grid-template-columns:1.2fr 1fr 1fr;gap:40px;margin-bottom:56px;}
+  .foot-col h4{font-size:14px;color:var(--amber);margin-bottom:16px;font-weight:700;}
+  .foot-col p, .foot-col a{color:var(--ink-dim);font-size:14.5px;display:block;margin-bottom:10px;}
+  .foot-col a:hover{color:var(--ink);}
+  .foot-bottom{
+    border-top:1px solid var(--line);padding-top:24px;
+    display:flex;justify-content:space-between;color:var(--ink-dim);font-size:13px;flex-wrap:wrap;gap:10px;
+  }
+
+  @media (max-width:900px){
+    nav.links, .nav-cta{display:none;}
+    .burger{display:block;}
+    .hero{grid-template-columns:1fr;min-height:auto;}
+    .hero-left{padding:48px 24px;}
+    .hero-right{clip-path:none;min-height:320px;}
+    @keyframes wipeIn{from{opacity:0;}to{opacity:1;}}
+    .section-head{grid-template-columns:1fr;gap:16px;}
+    .gallery{grid-template-columns:repeat(2,1fr);grid-auto-rows:150px;}
+    .tile.big{grid-column:span 2;grid-row:span 2;}
+    .tile.mid,.tile.small{grid-column:span 2;grid-row:span 1;}
+    .service-row{grid-template-columns:40px 1fr;grid-template-areas:"mark title" "mark desc";}
+    .loc-grid{grid-template-columns:1fr;}
+    .loc-info{padding:48px 24px;}
+    .foot-grid{grid-template-columns:1fr;}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="navbar">
+    <a href="#inicio" class="word">NÚCLEO<span>.</span></a>
+    <nav class="links" id="navLinks">
+      <a href="#inicio">Inicio</a>
+      <a href="#instalaciones">Instalaciones</a>
+      <a href="#servicios">Servicios</a>
+      <a href="#ubicacion">Ubicación</a>
+      <a href="#contacto">Contacto</a>
+    </nav>
+    <a href="#ubicacion" class="nav-cta">Visitanos</a>
+    <button class="burger" id="burger" aria-label="Abrir menú">☰</button>
+  </div>
+</header>
+
+<section id="inicio" class="hero" style="border-bottom:1px solid var(--line);padding:0;">
+  <div class="hero-left">
+    <div class="eyebrow">Rosario · Barrio Echesortu</div>
+    <h1>Entrená donde<br>el barrio se<br><em>levanta.</em></h1>
+    <p class="lead">Un galpón industrial reconvertido en sala de pesas, funcional y clases grupales. Sin vueltas, con equipamiento serio y gente que vuelve.</p>
+    <div class="cta-row">
+      <a href="#instalaciones" class="btn btn-primary">Conocé las instalaciones</a>
+      <a href="#ubicacion" class="btn btn-ghost">Ver ubicación</a>
+    </div>
+  </div>
+  <div class="hero-right">
+    <div class="panel-duo"></div>
+    <svg viewBox="0 0 500 600" preserveAspectRatio="xMidYMid slice">
+      <g stroke="#f2b705" stroke-width="3" fill="none" opacity="0.55">
+        <circle cx="120" cy="120" r="46"/>
+        <circle cx="120" cy="120" r="30"/>
+        <rect x="180" y="108" width="180" height="24" rx="4" fill="#2b2d35" stroke="#3a3d47"/>
+        <circle cx="380" cy="120" r="46"/>
+        <circle cx="380" cy="120" r="30"/>
+      </g>
+      <g stroke="#565b66" stroke-width="2" fill="none" opacity="0.5">
+        <path d="M60 320 h380"/>
+        <path d="M60 360 h380"/>
+        <path d="M90 320 v40 M170 320 v40 M250 320 v40 M330 320 v40 M410 320 v40"/>
+      </g>
+      <g opacity="0.4" stroke="#f2b705" stroke-width="2" fill="none">
+        <path d="M100 470 q150 -80 300 0"/>
+        <path d="M100 500 q150 -70 300 0"/>
+      </g>
+    </svg>
+    <div class="hero-caption">Reemplazá este panel por fotos o video real de la sala principal</div>
+  </div>
+</section>
+
+<section id="sobre">
+  <div class="wrap manifesto">
+    <div class="kicker">Sobre el club</div>
+    <p>No diseñamos un gimnasio para pasar desapercibido. Lo armamos para que entrenes fuerte, con criterio, y salgas mejor de lo que entraste.</p>
+    <p>NÚCLEO nació en 2019 en un galpón textil abandonado de Echesortu. Conservamos los techos altos, las vigas vistas y las aberturas originales, y les sumamos plataformas de levantamiento, zona funcional y un piso de clases con cupo reducido. Entrenan acá desde quienes levantan por primera vez una barra hasta atletas de powerlifting que compiten a nivel provincial.</p>
+    <div class="stat-row">
+      <div class="stat"><b>420</b><span>socios activos</span></div>
+      <div class="stat"><b>7</b><span>coaches en planta</span></div>
+      <div class="stat"><b>850m²</b><span>de piso de entrenamiento</span></div>
+      <div class="stat"><b>2019</b><span>año de apertura</span></div>
+    </div>
+  </div>
+</section>
+
+<section id="instalaciones">
+  <div class="wrap">
+    <div class="section-head">
+      <h2>Así es por dentro</h2>
+      <p>Cuatro zonas, un mismo criterio: equipamiento cuidado, espacio de sobra y buena luz natural. Elegí una categoría para ver el detalle.</p>
+    </div>
+    <div class="tabs" id="tabs">
+      <button class="tab active" data-tab="pesas">Zona de pesas</button>
+      <button class="tab" data-tab="funcional">Zona funcional</button>
+      <button class="tab" data-tab="cardio">Cardio</button>
+      <button class="tab" data-tab="vestuarios">Vestuarios</button>
+    </div>
+
+    <div class="gallery" data-panel="pesas">
+      <div class="tile big"><div class="glow"></div><span class="tag">Plataformas de levantamiento</span></div>
+      <div class="tile mid"><div class="glow"></div><span class="tag">Rack de sentadillas</span></div>
+      <div class="tile small"><div class="glow"></div><span class="tag">Discos y barras olímpicas</span></div>
+      <div class="tile small"><div class="glow"></div><span class="tag">Zona de mancuernas</span></div>
+      <div class="tile mid"><div class="glow"></div><span class="tag">Máquinas de poleas</span></div>
+    </div>
+    <div class="gallery hidden" data-panel="funcional">
+      <div class="tile big"><div class="glow"></div><span class="tag">Piso de clases grupales</span></div>
+      <div class="tile mid"><div class="glow"></div><span class="tag">Sogas y sled</span></div>
+      <div class="tile small"><div class="glow"></div><span class="tag">Cajones pliométricos</span></div>
+      <div class="tile small"><div class="glow"></div><span class="tag">Kettlebells</span></div>
+      <div class="tile mid"><div class="glow"></div><span class="tag">Barras de dominadas</span></div>
+    </div>
+    <div class="gallery hidden" data-panel="cardio">
+      <div class="tile big"><div class="glow"></div><span class="tag">Cintas y remo</span></div>
+      <div class="tile mid"><div class="glow"></div><span class="tag">Bicicletas fijas</span></div>
+      <div class="tile small"><div class="glow"></div><span class="tag">Escaladoras</span></div>
+      <div class="tile small"><div class="glow"></div><span class="tag">Ventanales al patio</span></div>
+      <div class="tile mid"><div class="glow"></div><span class="tag">Zona de estiramiento</span></div>
+    </div>
+    <div class="gallery hidden" data-panel="vestuarios">
+      <div class="tile big"><div class="glow"></div><span class="tag">Vestuario principal</span></div>
+      <div class="tile mid"><div class="glow"></div><span class="tag">Duchas individuales</span></div>
+      <div class="tile small"><div class="glow"></div><span class="tag">Lockers con candado</span></div>
+      <div class="tile small"><div class="glow"></div><span class="tag">Secador y espejos</span></div>
+      <div class="tile mid"><div class="glow"></div><span class="tag">Zona de mochilas</span></div>
+    </div>
+    <p class="gallery-note">Estos paneles están pensados como guía de maquetado: al recibir las fotos o el video real de cada zona, se reemplazan directamente sin tocar el resto del diseño.</p>
+  </div>
+</section>
+
+<section id="servicios">
+  <div class="wrap">
+    <div class="section-head">
+      <h2>Lo que incluye la cuota</h2>
+      <p>Un plan pensado para que puedas entrenar solo, en clase, o con seguimiento personalizado — sin planes escalonados confusos.</p>
+    </div>
+    <div class="service-list">
+      <div class="service-row"><div class="mark">M</div><h3>Musculación libre</h3><p>Acceso full a la sala de pesas y plataformas en cualquier horario de apertura, sin turnos.</p></div>
+      <div class="service-row"><div class="mark">F</div><h3>Entrenamiento funcional</h3><p>Clases de 50 minutos con cupo de 12 personas, tres niveles según experiencia.</p></div>
+      <div class="service-row"><div class="mark">G</div><h3>Clases grupales</h3><p>Powerlifting técnico, movilidad y acondicionamiento, con inscripción semanal.</p></div>
+      <div class="service-row"><div class="mark">S</div><h3>Seguimiento y nutrición</h3><p>Evaluación inicial con coach y control de rutina cada 6 semanas, incluido en el plan anual.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="ubicacion" style="border-bottom:1px solid var(--line);">
+  <div class="loc-grid">
+    <div class="loc-info">
+      <div class="kicker">Cómo llegar</div>
+      <h2>Un galpón en Echesortu, a media cuadra del Boulevard.</h2>
+      <div class="loc-block">
+        <div class="label">Dirección</div>
+        <div class="val">Bv. Oroño 1180<br><small>Barrio Echesortu, Rosario, Santa Fe</small></div>
+      </div>
+      <div class="loc-block">
+        <div class="label">Horarios</div>
+        <div class="val">Lunes a viernes, 7:00 a 22:30<br><small>Sábados, 9:00 a 14:00 — domingos cerrado</small></div>
+      </div>
+      <div class="loc-block">
+        <div class="label">Cómo llegar</div>
+        <div class="val">Líneas de colectivo K y 143 a dos cuadras<br><small>Estacionamiento para bicicletas en la entrada</small></div>
+      </div>
+      <a href="https://www.openstreetmap.org/?mlat=-32.9440&mlon=-60.6570#map=17/-32.9440/-60.6570" target="_blank" rel="noopener" class="btn btn-primary" style="width:fit-content;margin-top:8px;">Abrir en el mapa</a>
+    </div>
+    <div id="map"></div>
+  </div>
+</section>
+
+<footer id="contacto">
+  <div class="wrap">
+    <div class="foot-grid">
+      <div class="foot-col">
+        <h4>NÚCLEO Training Club</h4>
+        <p>Un espacio de entrenamiento serio, en un galpón que respeta su historia. Fundado en Rosario en 2019.</p>
+      </div>
+      <div class="foot-col">
+        <h4>Contacto</h4>
+        <a href="tel:+543414000000">341 400-0000</a>
+        <a href="mailto:hola@nucleotraining.com.ar">hola@nucleotraining.com.ar</a>
+        <a href="#">@nucleo.training</a>
+      </div>
+      <div class="foot-col">
+        <h4>Visitas</h4>
+        <p>Primera clase de prueba sin cargo, coordinando turno previo por WhatsApp.</p>
+        <a href="#ubicacion">Reservar visita →</a>
+      </div>
+    </div>
+    <div class="foot-bottom">
+      <span>© 2026 NÚCLEO Training Club</span>
+      <span>Sitio demo — contenido de ejemplo</span>
+    </div>
+  </div>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script>
+  // Nav scroll-spy
+  const sections = document.querySelectorAll('section[id], header + section[id]');
+  const navAs = document.querySelectorAll('nav.links a');
+  const allSections = document.querySelectorAll('section[id]');
+  const io = new IntersectionObserver((entries)=>{
+    entries.forEach(e=>{
+      if(e.isIntersecting){
+        navAs.forEach(a=>a.classList.remove('active'));
+        const match = document.querySelector(`nav.links a[href="#${e.target.id}"]`);
+        if(match) match.classList.add('active');
+      }
+    });
+  },{rootMargin:'-45% 0px -50% 0px'});
+  allSections.forEach(s=>io.observe(s));
+
+  // Gallery tabs
+  const tabs = document.querySelectorAll('.tab');
+  const panels = document.querySelectorAll('.gallery');
+  tabs.forEach(tab=>{
+    tab.addEventListener('click',()=>{
+      tabs.forEach(t=>t.classList.remove('active'));
+      tab.classList.add('active');
+      const key = tab.dataset.tab;
+      panels.forEach(p=>{
+        p.classList.toggle('hidden', p.dataset.panel !== key);
+      });
+    });
+  });
+
+  // Mobile burger (simple toggle)
+  const burger = document.getElementById('burger');
+  const navLinks = document.getElementById('navLinks');
+  burger.addEventListener('click',()=>{
+    const open = navLinks.style.display === 'flex';
+    navLinks.style.display = open ? 'none' : 'flex';
+    navLinks.style.cssText += open ? '' : 'position:absolute;top:64px;left:0;right:0;background:#15161a;flex-direction:column;padding:20px 28px;border-bottom:1px solid #2e313a;gap:18px;';
+  });
+
+  // Map
+  const map = L.map('map', {scrollWheelZoom:false}).setView([-32.9440,-60.6570], 15);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution:'&copy; OpenStreetMap contributors',
+    maxZoom:19
+  }).addTo(map);
+  const amberIcon = L.divIcon({
+    className:'',
+    html:'<div style="width:18px;height:18px;background:#f2b705;border:3px solid #15161a;border-radius:50%;box-shadow:0 0 0 4px rgba(242,183,5,.25);"></div>',
+    iconSize:[18,18],
+    iconAnchor:[9,9]
+  });
+  L.marker([-32.9440,-60.6570], {icon:amberIcon}).addTo(map)
+    .bindPopup('<b>NÚCLEO Training Club</b><br>Bv. Oroño 1180, Rosario');
+</script>
+</body>
+</html>
